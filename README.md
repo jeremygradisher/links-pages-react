@@ -100,67 +100,277 @@ console.log(`A Cyborg Manifesto:  ${faveManifestos.cyborg}`);
 This style of importing and exporting in JavaScript is known as “named exports.” When you use named exports, you always need to wrap your imported names in curly braces, such as:
 
 import { faveManifestos, alsoRan } from './Manifestos';`
+```
 
-## Available Scripts
+# Access a Component's props
+## Every component has something called props.
 
-In the project directory, you can run:
+A component’s props is an object. It holds information about that component.
 
-### `npm start`
+To see a component’s props object, you use the expression this.props. 
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Pass `props` to a Component
+You can pass information to a React component.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+How? By giving that component an attribute:
+```
+<MyComponent foo="bar" />
+```
 
-### `npm test`
+Render a Component's props
+You just passed information to a component’s props object!
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+You will often want a component to display the information that you pass.
 
-### `npm run build`
+Here’s how to make a component display passed-in information:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1 - Find the component class that is going to receive that information.
+2 - Include this.props.name-of-information in that component class’s render method’s return statement.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+A curmudgeonly clarification about grammar:
+You may have noticed some loose usage of the words prop and props. Unfortunately, this is pretty inevitable.
 
-### `npm run eject`
+props is the name of the object that stores passed-in information. this.props refers to that storage object. At the same time, each piece of passed-in information is called a prop. This means that props could refer to two pieces of passed-in information, or it could refer to the object that stores those pieces of information :(
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+# Pass props From Component To Component
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```
+import React from 'react';
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+export class NavBar extends React.Component {
+  render() {
+    const pages = ['home', 'blog', 'pics', 'bio', 'art', 'shop', 'about', 'contact'];
+    const navLinks = pages.map(page => {
+      return (
+        <a href={'/' + page}>
+          {page}
+        </a>
+      )
+    });
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+    return <nav>{navLinks}</nav>;
+  }
+}
+```
 
-## Learn More
+```
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { Greeting } from './Greeting';
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+class App extends React.Component {
+  render() {
+    return (
+      <div>
+        <h1>
+          Hullo and, "Welcome to The Newzz," "On Line!"
+        </h1>
+        <Greeting name="Jeremy" />
+        <article>
+          Latest newzz:  where is my phone?
+        </article>
+      </div>
+    );
+  }
+}
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+ReactDOM.render(
+  <App />, 
+  document.getElementById('app')
+);
+```
+You passed a prop from a component to a different component, accessed that prop from the receiver component, and rendered it!
 
-### Code Splitting
+# Render Different UI Based on props
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Put an Event Handler in a Component Class
+You can, and often will, pass functions as props. It is especially common to pass event handler functions.
 
-### Analyzing the Bundle Size
+button.js
+```
+import React from 'react';
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+export class Button extends React.Component {
+  render() {
+    return (
+      <button onClick={this.props.talk}>
+        Click me!
+      </button>
+    );
+  }
+}
+```
 
-### Making a Progressive Web App
+talker.js:
+```
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { Button } from './Button';
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+class Talker extends React.Component {
+  talk() {
+    let speech = '';
+    for (let i = 0; i < 10000; i++) {
+      speech += 'blah ';
+    }
+    alert(speech);
+  }
+  
+  render() {
+    return <Button talk={this.talk} />;
+  }
+}
 
-### Advanced Configuration
+ReactDOM.render(
+  <Talker/>,
+  document.getElementById('app')
+);
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+THIS.PROPS
+handleEvent, onEvent, and this.props.onEvent
+Let’s talk about naming things.
 
-### Deployment
+When you pass an event handler as a prop, as you just did, there are two names that you have to choose.
+
+Both naming choices occur in the parent component class - that is, in the component class that defines the event handler and passes it.
+
+The first name that you have to choose is the name of the event handler itself.
+
+Look at Talker.js, lines 6 through 12. This is our event handler. We chose to name it talk.
+
+The second name that you have to choose is the name of the prop that you will use to pass the event handler. This is the same thing as your attribute name.
+
+For our prop name, we also chose talk, as shown on line 15:
+```
+return <Button talk={this.talk} />;
+```
+
+One major source of confusion is the fact that names like onClick have special meaning, but only if they’re used on HTML-like elements.
+
+Look at Button.js. When you give a <button></button> an attribute named onClick, then the name onClick has special meaning. As you’ve learned, this special onClick attribute creates an event listener, listening for clicks on the <button></button>:
+```
+// Button.js
+ 
+// The attribute name onClick
+// creates an event listner:
+<button onClick={this.props.onClick}>
+  Click me!
+</button>
+```
+Now look at Talker.js. Here, when you give <Button /> an attribute named onClick, then the name onClick doesn’t do anything special. The name onClick does not create an event listener when used on <Button /> - it’s just an arbitrary attribute name:
+
+```
+// Talker.js
+ 
+// The attribute name onClick
+// is just a normal attribute name:
+<Button onClick={this.handleClick} />
+```
+The reason for this is that <Button /> is not an HTML-like JSX element; it’s a component instance.
+
+Names like onClick only create event listeners if they’re used on HTML-like JSX elements. Otherwise, they’re just ordinary prop names.
+
+
+THIS.PROPS
+this.props.children
+Every component’s props object has a property named children.
+
+this.props.children will return everything in between a component’s opening and closing JSX tags.
+
+So far, all of the components that you’ve seen have been self-closing tags, such as <MyComponentClass />. They don’t have to be! You could write <MyComponentClass></MyComponentClass>, and it would still work.
+
+this.props.children would return everything in between <MyComponentClass> and </MyComponentClass>.
+
+App.JS
+```
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { List } from './List';
+
+class App extends React.Component {
+  render() {
+    return (
+      <div>
+        <List type='Living Musician'>
+          <li>Sachiko M</li>
+          <li>Harvey Sid Fisher</li>
+        </List>
+        <List type='Living Cat Musician'>
+          <li>Nora the Piano Cat</li>
+        </List>
+      </div>
+    );
+  }
+}
+
+ReactDOM.render(
+  <App />, 
+  document.getElementById('app')
+);
+```
+
+list.js
+```
+import React from 'react';
+
+export class List extends React.Component {
+  render() {
+    let titleText = `Favorite ${this.props.type}`;
+    if (this.props.children instanceof Array) {
+    	titleText += 's';
+    }
+    return (
+      <div>
+        <h1>{titleText}</h1>
+        <ul>{this.props.children}</ul>
+      </div>
+    );
+  }
+}
+```
+
+```
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+class Button extends React.Component {
+  render() {
+    return (
+      <button>
+        {this.props.text}
+      </button>
+    );
+  }
+}
+
+// defaultProps goes here:
+Button.defaultProps = { text: 'I am a button' }; 
+
+ReactDOM.render(
+  <Button />, 
+  document.getElementById('app')
+);
+```
+
+THIS.PROPS
+this.props Recap
+That completes our lesson on props. Great job sticking with it!
+
+Here are some of the skills that you have learned:
+
+Passing a prop by giving an attribute to a component instance
+Accessing a passed-in prop via this.props.prop-name
+Displaying a prop
+Using a prop to make decisions about what to display
+Defining an event handler in a component class
+Passing an event handler as a prop
+Receiving a prop event handler and attaching it to an event listener
+Naming event handlers and event handler attributes according to convention
+this.props.children
+getDefaultProps
+That’s a lot! Don’t worry if it’s all a bit of a blur. Soon you’ll get plenty of practice!
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
 
