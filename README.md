@@ -1,5 +1,7 @@
 # React app - Links and Pages
 
+## I'll come back to this. I'm trying to get links working but I do not understand it well enough yet.
+
 react-components-interacting.txt
 
 Cheatsheet: https://www.codecademy.com/learn/learn-react-introduction/modules/react-components-interacting/cheatsheet
